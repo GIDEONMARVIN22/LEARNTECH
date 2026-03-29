@@ -2,13 +2,11 @@ import requests
 import os
 
 # ── Pesapal Credentials ─────────────────────────────────────────────────────
-CONSUMER_KEY = os.environ.get('PESAPAL_CONSUMER_KEY', 'H5SWGRob0bcyZvsiVH52jwrAdCaRsEqK')
-CONSUMER_SECRET = os.environ.get('PESAPAL_CONSUMER_SECRET', 'Ji55j2AxS7+CQQxptP+g/PQUDwI=')
+CONSUMER_KEY = os.environ.get('PESAPAL_CONSUMER_KEY', '')
+CONSUMER_SECRET = os.environ.get('PESAPAL_CONSUMER_SECRET', '')
 
-# Sandbox: https://cybqa.pesapal.com/pesapalv3
-# Live:    https://pay.pesapal.com/v3
 BASE_URL = os.environ.get('PESAPAL_BASE_URL', 'https://cybqa.pesapal.com/pesapalv3')
-CALLBACK_URL = os.environ.get('PESAPAL_CALLBACK_URL', 'https://learntech.onrender.com/pesapal/callback')
+CALLBACK_URL = os.environ.get('PESAPAL_CALLBACK_URL', 'https://learntech-lvem.onrender.com/pesapal/callback')
 
 
 def get_access_token():

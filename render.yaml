@@ -14,4 +14,4 @@ services:
       - key: PESAPAL_BASE_URL
         value: https://cybqa.pesapal.com/pesapalv3
       - key: PESAPAL_CALLBACK_URL
-        value: https://learntech.onrender.com/pesapal/callback
+        value: https://learntech-lvem.onrender.com/pesapal/callback
