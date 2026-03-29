@@ -7,7 +7,11 @@ import io, os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'learntech-secret-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///learntech.db')
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///learntech.db')
+# Render gives postgres:// but SQLAlchemy needs postgresql://
+if db_url.startswith('postgres://'):
+    db_url = db_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -79,13 +83,14 @@ def seed_data():
             lesson = Lesson(course_id=course.id, title=title, content=content, order=i+1)
             db.session.add(lesson)
     # Create admin user
-    if not User.query.filter_by(email='admin@learntech.co.ke').first():
+    if not User.query.filter_by(is_admin=True).first():
         admin = User(
-            name='Admin',
-            email='admin@learntech.co.ke',
-            password=generate_password_hash('admin123'),
+            name='Gideon Marvin',
+            email=os.environ.get('ADMIN_EMAIL', 'admin@learntech.co.ke'),
+            password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123')),
             is_admin=True
         )
+        db.session.add(admin)
         db.session.add(admin)
     db.session.commit()
 
