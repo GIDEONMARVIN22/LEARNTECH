@@ -86,17 +86,16 @@ def seed_data():
     if not User.query.filter_by(is_admin=True).first():
         admin = User(
             name='Gideon Marvin',
-            email=os.environ.get('ADMIN_EMAIL', 'admin@learntech.co.ke'),
-            password=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123')),
+            email='admin@learntech.co.ke',
+            password=generate_password_hash('admin123'),
             is_admin=True
         )
         db.session.add(admin)
     else:
-        # Update existing admin credentials from environment
         admin = User.query.filter_by(is_admin=True).first()
         admin.name = 'Gideon Marvin'
-        admin.email = os.environ.get('ADMIN_EMAIL', admin.email)
-        admin.password = generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123'))
+        admin.email = 'admin@learntech.co.ke'
+        admin.password = generate_password_hash('admin123')
         db.session.add(admin)
     db.session.commit()
 
