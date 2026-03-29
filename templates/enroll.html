@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Enroll in {{ course.title }} — LearnTech{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card enroll-card">
+        <div class="course-icon-lg">{{ course.icon }}</div>
+        <h2>Enroll in {{ course.title }}</h2>
+        <p>{{ course.description }}</p>
+
+        <div class="payment-info">
+            <h4>💳 Payment — Ksh 500</h4>
+            <p>You'll be redirected to a secure Pesapal payment page where you can pay via:</p>
+            <ul style="padding-left:1.2rem;line-height:2;margin-top:.5rem">
+                <li>📱 M-Pesa</li>
+                <li>🏦 Equity Bank</li>
+                <li>💳 Visa / Mastercard</li>
+                <li>📶 Airtel Money</li>
+            </ul>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" required placeholder="e.g. 0712345678" pattern="[0-9]{10}">
+                <small>Used for M-Pesa payment confirmation</small>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Proceed to Payment →</button>
+        </form>
+        <p class="auth-switch"><a href="{{ url_for('dashboard') }}">← Back to Dashboard</a></p>
+    </div>
+</div>
+{% endblock %}

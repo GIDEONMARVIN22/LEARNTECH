@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — LearnTech{% endblock %}
+{% block content %}
+<div class="admin-page">
+    <h2>Admin Dashboard</h2>
+
+    <div class="admin-stats">
+        <div class="stat-card"><h3>{{ users|length }}</h3><p>Total Students</p></div>
+        <div class="stat-card"><h3>{{ enrollments|length }}</h3><p>Paid Enrollments</p></div>
+        <div class="stat-card"><h3>Ksh {{ "{:,}".format(total_revenue) }}</h3><p>Total Revenue</p></div>
+        <div class="stat-card"><h3>{{ enrollments|selectattr('completed')|list|length }}</h3><p>Certificates Issued</p></div>
+    </div>
+
+    <div class="admin-section">
+        <h3>Enrolled Students</h3>
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Progress</th>
+                        <th>Payment Ref</th>
+                        <th>Enrolled</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in enrollments %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ e.user.name }}</td>
+                        <td>{{ e.user.email }}</td>
+                        <td>{{ e.course.icon }} {{ e.course.title }}</td>
+                        <td>
+                            <div class="progress-bar-wrap small">
+                                <div class="progress-bar" style="width: {{ e.progress }}%"></div>
+                            </div>
+                            <small>{{ e.progress }}%</small>
+                        </td>
+                        <td><code>{{ e.payment_ref }}</code></td>
+                        <td>{{ e.enrolled_at.strftime('%d %b %Y') }}</td>
+                        <td>
+                            {% if e.completed %}
+                                <span class="badge badge-success">Completed</span>
+                            {% else %}
+                                <span class="badge badge-info">In Progress</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not enrollments %}
+                    <tr><td colspan="8" style="text-align:center;color:#888">No enrollments yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>All Registered Users</h3>
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr><th>#</th><th>Name</th><th>Email</th><th>Joined</th><th>Courses Enrolled</th></tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
+                        <td>{{ user.enrollments|selectattr('paid')|list|length }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not users %}
+                    <tr><td colspan="5" style="text-align:center;color:#888">No users yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Certificate — {{ course.title }}{% endblock %}
+{% block content %}
+<div class="cert-page">
+
+    <!-- Preview card shown on screen -->
+    <div class="certificate">
+        <div class="cert-top-bar">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="LearnTech Logo" class="cert-logo">
+            <h1>LearnTech Kenya</h1>
+            <p>Building Skills, Building Futures</p>
+        </div>
+        <div class="cert-body">
+            <p class="cert-label">CERTIFICATE OF COMPLETION</p>
+            <div class="cert-divider"></div>
+            <p class="cert-intro">This is to certify that</p>
+            <h2 class="cert-name">{{ user.name }}</h2>
+            <p class="cert-intro">has successfully completed the course</p>
+            <h3 class="cert-course">{{ course.title }}</h3>
+
+            <div class="cert-details-row">
+                <span>📧 {{ user.email }}</span>
+                <span>📅 {{ enrollment.completed_at.strftime('%B %d, %Y') }}</span>
+            </div>
+
+            <p class="cert-number">
+                Certificate No: LT-{{ '%02d' % course.id }}-{{ '%04d' % user.id }}-{{ enrollment.completed_at.strftime('%Y%m%d') }}
+            </p>
+        </div>
+        <div class="cert-footer">
+            <div class="cert-sig">
+                <img src="{{ url_for('static', filename='signature.png') }}" alt="Signature" class="sig-img"
+                     onerror="this.style.display='none'">
+                <div class="sig-line"></div>
+                <p>Gideon Marvin</p>
+                <small>Director, LearnTech Kenya</small>
+            </div>
+        </div>
+        <p class="cert-fine">This certificate is issued by LearnTech Kenya and is valid proof of course completion.</p>
+    </div>
+
+    <div class="cert-actions">
+        <a href="{{ url_for('download_certificate', course_id=course.id) }}" class="btn btn-primary btn-lg" id="download-btn">
+            ⬇ Download PDF Certificate
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">Back to Dashboard</a>
+    </div>
+
+    <p style="text-align:center;color:#94a3b8;font-size:.85rem;margin-top:.5rem">
+        The PDF is print-ready (A4 Landscape). Open it and press Ctrl+P to print.
+    </p>
+</div>
+{% endblock %}

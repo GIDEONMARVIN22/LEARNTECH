@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard — LearnTech{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h2>Welcome back, {{ current_user.name }} 👋</h2>
+        <p>Continue where you left off or explore new courses.</p>
+    </div>
+
+    {% if enrollments %}
+    <section class="my-courses">
+        <h3>My Enrolled Courses</h3>
+        <div class="courses-grid">
+            {% for enrollment in enrollments %}
+            <div class="course-card enrolled">
+                <div class="course-icon">{{ enrollment.course.icon }}</div>
+                <h3>{{ enrollment.course.title }}</h3>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar" style="width: {{ enrollment.progress }}%"></div>
+                </div>
+                <p class="progress-text">{{ enrollment.progress }}% complete</p>
+                {% if enrollment.completed %}
+                    <div class="badge-complete">✅ Completed</div>
+                    <a href="{{ url_for('certificate', course_id=enrollment.course_id) }}" class="btn btn-success">View Certificate</a>
+                {% else %}
+                    <a href="{{ url_for('learn', course_id=enrollment.course_id) }}" class="btn btn-primary">Continue Learning</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="available-courses">
+        <h3>All Courses</h3>
+        <div class="courses-grid">
+            {% for course in courses %}
+                {% if course.id not in enrolled_ids %}
+                <div class="course-card">
+                    <div class="course-icon">{{ course.icon }}</div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description[:100] }}...</p>
+                    <div class="course-meta">
+                        <span>{{ course.lessons|length }} Lessons</span>
+                        <span class="price">Ksh {{ course.price }}</span>
+                    </div>
+                    <a href="{{ url_for('enroll', course_id=course.id) }}" class="btn btn-primary">Enroll — Ksh 500</a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

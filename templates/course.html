@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }} — LearnTech{% endblock %}
+{% block content %}
+<div class="course-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span>{{ course.icon }}</span>
+            <h3>{{ course.title }}</h3>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar" id="sidebar-progress" style="width: {{ enrollment.progress }}%"></div>
+        </div>
+        <p class="progress-text" id="progress-label">{{ enrollment.progress }}% complete</p>
+        <ul class="lesson-list">
+            {% for lesson in lessons %}
+            <li class="lesson-item {% if lesson.id == current_lesson.id %}active{% endif %} {% if lesson.id in completed_ids %}done{% endif %}">
+                <a href="{{ url_for('learn', course_id=course.id, lesson=lesson.id) }}">
+                    {% if lesson.id in completed_ids %}✅{% else %}⬜{% endif %}
+                    {{ lesson.order }}. {{ lesson.title }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if enrollment.completed %}
+        <a href="{{ url_for('certificate', course_id=course.id) }}" class="btn btn-success btn-full" style="margin-top:1rem">🏆 Get Certificate</a>
+        {% endif %}
+    </aside>
+
+    <div class="lesson-content">
+        {% if current_lesson %}
+        <div class="lesson-header">
+            <h2>{{ current_lesson.title }}</h2>
+            <span class="lesson-badge">Lesson {{ current_lesson.order }} of {{ lessons|length }}</span>
+        </div>
+        <div class="lesson-body">
+            {{ current_lesson.content | replace('\n', '<br>') | safe }}
+        </div>
+        {% if current_lesson.id not in completed_ids %}
+        <button class="btn btn-primary" id="complete-btn" data-lesson="{{ current_lesson.id }}" data-course="{{ course.id }}">
+            ✅ Mark as Complete
+        </button>
+        {% else %}
+        <div class="completed-msg">✅ You've completed this lesson!</div>
+        {% endif %}
+
+        <div class="lesson-nav">
+            {% set ns = namespace(prev=None, next=None, found=False) %}
+            {% for lesson in lessons %}
+                {% if ns.found and ns.next is none %}{% set ns.next = lesson %}{% endif %}
+                {% if lesson.id == current_lesson.id %}{% set ns.found = True %}{% endif %}
+                {% if not ns.found %}{% set ns.prev = lesson %}{% endif %}
+            {% endfor %}
+            {% if ns.prev %}
+            <a href="{{ url_for('learn', course_id=course.id, lesson=ns.prev.id) }}" class="btn btn-outline">← Previous</a>
+            {% endif %}
+            {% if ns.next %}
+            <a href="{{ url_for('learn', course_id=course.id, lesson=ns.next.id) }}" class="btn btn-primary">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

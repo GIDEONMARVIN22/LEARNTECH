@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}LearnTech — Build Your Tech Skills{% endblock %}
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Build Real Tech Skills.<br>Earn Certificates.</h1>
+        <p>Join thousands of Kenyans learning Cybersecurity, Graphic Design, Web Development, and Computer Skills — all for just <strong>Ksh 500 per course.</strong></p>
+        <div class="hero-btns">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Start Learning Today</a>
+            <a href="#courses" class="btn btn-outline btn-lg">Browse Courses</a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="stat"><span>4</span><p>Courses</p></div>
+        <div class="stat"><span>Ksh 500</span><p>Per Course</p></div>
+        <div class="stat"><span>🏆</span><p>Certificate</p></div>
+    </div>
+</section>
+
+<section class="courses-section" id="courses">
+    <h2>Our Courses</h2>
+    <p class="section-sub">Each course includes lessons, quizzes, and a downloadable certificate upon completion.</p>
+    <div class="courses-grid">
+        {% for course in courses %}
+        <div class="course-card">
+            <div class="course-icon">{{ course.icon }}</div>
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description }}</p>
+            <div class="course-meta">
+                <span>{{ course.lessons|length }} Lessons</span>
+                <span class="price">Ksh {{ course.price }}</span>
+            </div>
+            <a href="{{ url_for('enroll', course_id=course.id) }}" class="btn btn-primary">Enroll Now</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="steps">
+        <div class="step"><div class="step-num">1</div><h4>Register</h4><p>Create your free account in seconds.</p></div>
+        <div class="step"><div class="step-num">2</div><h4>Pay Ksh 500</h4><p>Pay via M-Pesa to unlock your chosen course.</p></div>
+        <div class="step"><div class="step-num">3</div><h4>Learn</h4><p>Access lessons anytime, at your own pace.</p></div>
+        <div class="step"><div class="step-num">4</div><h4>Get Certified</h4><p>Complete the course and download your certificate.</p></div>
+    </div>
+</section>
+
+{% endblock %}
