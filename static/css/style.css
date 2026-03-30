@@ -181,8 +181,8 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .cert-sig { text-align: center; }
 .sig-img { height: 55px; object-fit: contain; display: block; margin: 0 auto .2rem; }
 .sig-line { width: 160px; border-top: 1.5px solid #1e293b; margin: 0 auto .4rem; }
-.cert-sig p { font-size: .88rem; font-weight: 600; color: #1e293b; }
-.cert-sig small { font-size: .78rem; color: #94a3b8; }
+.cert-sig p { font-size: 1.4rem; font-weight: 700; color: #1e293b; }
+.cert-sig small { font-size: 1rem; color: #94a3b8; }
 .cert-fine { text-align: center; font-size: .75rem; color: #94a3b8; padding: .6rem 1rem; border-top: 1px solid #f1f5f9; }
 .cert-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
 
@@ -218,3 +218,31 @@ footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85r
     .hero { padding: 3rem 1rem 2rem; }
     .hero-stats { gap: 1.5rem; }
 }
+
+/* ── PDF Viewer ── */
+.pdf-viewer-wrap { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.pdf-header { display: flex; justify-content: space-between; align-items: center;
+    padding: .8rem 1.2rem; background: #1e293b; color: #e2e8f0; font-size: .9rem; font-weight: 600; }
+.pdf-iframe { width: 100%; height: 700px; border: none; display: block; }
+@media (max-width: 768px) { .pdf-iframe { height: 400px; } }
+
+/* ── Director Stamp ── */
+.cert-footer { display: flex; justify-content: space-around; align-items: center; padding: 1.2rem 2rem; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 1rem; }
+.cert-stamp { display: flex; align-items: center; justify-content: center; }
+.stamp-outer {
+    width: 110px; height: 110px; border-radius: 50%;
+    border: 3px solid #1a3c6e;
+    display: flex; align-items: center; justify-content: center;
+    background: #e8f0fe;
+    position: relative;
+}
+.stamp-inner {
+    width: 94px; height: 94px; border-radius: 50%;
+    border: 1.5px solid #1a3c6e;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: .3rem;
+}
+.stamp-top, .stamp-bottom { font-size: .5rem; font-weight: 700; color: #1a3c6e; letter-spacing: 1px; margin: 1px 0; }
+.stamp-title { font-size: .65rem; font-weight: 700; color: #1a3c6e; margin: 2px 0; }
+.stamp-name { font-size: .55rem; font-weight: 600; color: #1a3c6e; margin: 1px 0; }
+.stamp-cert { font-size: .5rem; color: #1a3c6e; margin: 1px 0; letter-spacing: 1px; }

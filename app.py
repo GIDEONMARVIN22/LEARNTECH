@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from models import db, User, Course, Lesson, Enrollment, LessonProgress
-import io, os
+import io, os, math
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'learntech-secret-change-in-production')
@@ -31,11 +31,11 @@ def seed_data():
             'icon': '🔐',
             'description': 'Learn ethical hacking, network security, threat analysis, and how to protect systems from cyber attacks.',
             'lessons': [
-                ('Introduction to Cybersecurity', 'Cybersecurity is the practice of protecting systems, networks, and programs from digital attacks. In this lesson, we cover the CIA Triad: Confidentiality, Integrity, and Availability — the three pillars of information security.\n\nKey concepts:\n- Threats vs Vulnerabilities\n- Types of attackers (black hat, white hat, grey hat)\n- Common attack vectors'),
-                ('Network Security Basics', 'Networks are the backbone of modern communication. Securing them is critical.\n\nTopics covered:\n- Firewalls and how they work\n- VPNs (Virtual Private Networks)\n- Intrusion Detection Systems (IDS)\n- Common network attacks: DDoS, Man-in-the-Middle, Packet Sniffing'),
-                ('Ethical Hacking & Penetration Testing', 'Ethical hackers (penetration testers) are hired to find vulnerabilities before malicious hackers do.\n\nYou will learn:\n- Phases of penetration testing: Reconnaissance, Scanning, Exploitation, Reporting\n- Tools: Nmap, Metasploit, Wireshark\n- Writing a penetration test report'),
-                ('Cryptography Fundamentals', 'Cryptography is the art of securing information.\n\nCovered topics:\n- Symmetric vs Asymmetric encryption\n- SSL/TLS protocols\n- Hashing algorithms: MD5, SHA-256\n- Public Key Infrastructure (PKI)'),
-                ('Incident Response & Recovery', 'When a breach happens, how you respond matters.\n\nLearn:\n- Incident response lifecycle\n- Digital forensics basics\n- Creating an incident response plan\n- Business continuity and disaster recovery'),
+                ('Introduction to Cybersecurity', ''),
+                ('Network Security Basics', ''),
+                ('Ethical Hacking & Penetration Testing', ''),
+                ('Cryptography Fundamentals', ''),
+                ('Incident Response & Recovery', ''),
             ]
         },
         {
@@ -43,11 +43,11 @@ def seed_data():
             'icon': '🎨',
             'description': 'Master visual communication, typography, color theory, and design tools to create stunning graphics.',
             'lessons': [
-                ('Design Principles & Elements', 'Great design starts with understanding the fundamentals.\n\nCore principles:\n- Balance, Contrast, Alignment, Repetition, Proximity\n- Elements: Line, Shape, Color, Texture, Space\n- Visual hierarchy and how the eye moves across a design'),
-                ('Color Theory', 'Color is one of the most powerful tools in a designer\'s toolkit.\n\nTopics:\n- The color wheel: primary, secondary, tertiary colors\n- Color harmonies: complementary, analogous, triadic\n- Psychology of color in branding\n- Working with hex codes and RGB/CMYK'),
-                ('Typography', 'Typography is the art of arranging type to make written language legible and appealing.\n\nLearn:\n- Serif vs Sans-serif fonts\n- Font pairing techniques\n- Kerning, leading, and tracking\n- Choosing fonts for different contexts'),
-                ('Logo & Brand Identity Design', 'A logo is the face of a brand.\n\nCovered:\n- Logo design process: brief, research, sketching, digitizing\n- Types of logos: wordmark, lettermark, icon, combination\n- Creating brand guidelines\n- File formats: SVG, PNG, PDF'),
-                ('Digital Tools: Canva & Figma', 'Get hands-on with industry-standard design tools.\n\nYou will learn:\n- Canva for quick social media graphics\n- Figma for UI/UX and collaborative design\n- Exporting assets for web and print\n- Building a design portfolio'),
+                ('Design Principles & Elements', ''),
+                ('Color Theory', ''),
+                ('Typography', ''),
+                ('Logo & Brand Identity Design', ''),
+                ('Digital Tools: Canva & Figma', ''),
             ]
         },
         {
@@ -55,11 +55,11 @@ def seed_data():
             'icon': '💻',
             'description': 'Build modern websites and web apps using HTML, CSS, JavaScript, and backend technologies.',
             'lessons': [
-                ('HTML Fundamentals', 'HTML (HyperText Markup Language) is the skeleton of every webpage.\n\nLearn:\n- Document structure: DOCTYPE, html, head, body\n- Semantic elements: header, nav, main, footer, article\n- Forms, tables, and media elements\n- Accessibility best practices'),
-                ('CSS Styling & Layouts', 'CSS brings your HTML to life with styles and layouts.\n\nTopics:\n- Selectors, specificity, and the cascade\n- Box model: margin, border, padding, content\n- Flexbox and CSS Grid\n- Responsive design with media queries'),
-                ('JavaScript Essentials', 'JavaScript makes websites interactive.\n\nCovered:\n- Variables, data types, functions\n- DOM manipulation\n- Events and event listeners\n- Fetch API and working with JSON'),
-                ('Backend with Python & Flask', 'Build server-side applications with Python.\n\nLearn:\n- Setting up a Flask application\n- Routes and templates (Jinja2)\n- Working with databases using SQLAlchemy\n- User authentication and sessions'),
-                ('Deploying Your Website', 'Get your website live on the internet.\n\nTopics:\n- Hosting options: shared hosting, VPS, cloud\n- Deploying to platforms like Render or Railway\n- Domain names and DNS\n- SSL certificates and HTTPS'),
+                ('HTML Fundamentals', ''),
+                ('CSS Styling & Layouts', ''),
+                ('JavaScript Essentials', ''),
+                ('Backend with Python & Flask', ''),
+                ('Deploying Your Website', ''),
             ]
         },
         {
@@ -67,11 +67,11 @@ def seed_data():
             'icon': '🖥️',
             'description': 'Build a solid foundation in computer usage, Microsoft Office, internet safety, and digital literacy.',
             'lessons': [
-                ('Introduction to Computers', 'Understand how computers work and the key components.\n\nTopics:\n- Hardware vs Software\n- Input and output devices\n- CPU, RAM, Storage explained simply\n- Operating systems: Windows, macOS, Linux'),
-                ('File Management & Organization', 'Stay organized and productive on your computer.\n\nLearn:\n- Creating, moving, copying, and deleting files\n- Folder structures and naming conventions\n- Using search to find files quickly\n- Cloud storage: Google Drive, OneDrive'),
-                ('Microsoft Office Essentials', 'Office tools are used in almost every workplace.\n\nCovered:\n- Word: formatting documents, tables, mail merge\n- Excel: formulas, charts, data sorting\n- PowerPoint: creating professional presentations\n- Outlook: email management and calendar'),
-                ('Internet & Email Safety', 'Stay safe online in today\'s connected world.\n\nLearn:\n- How the internet works\n- Identifying phishing emails and scams\n- Strong passwords and two-factor authentication\n- Safe browsing habits'),
-                ('Introduction to AI Tools', 'AI tools are transforming how we work.\n\nTopics:\n- What is Artificial Intelligence?\n- Using ChatGPT and AI assistants productively\n- AI tools for writing, images, and productivity\n- Ethical use of AI'),
+                ('Computer Basics', ''),
+                ('Microsoft Word', ''),
+                ('Microsoft Excel', ''),
+                ('Microsoft PowerPoint', ''),
+                ('Microsoft Publisher', ''),
             ]
         },
     ]
@@ -161,6 +161,22 @@ def enroll(course_id):
     if existing and existing.paid:
         return redirect(url_for('learn', course_id=course_id))
     if request.method == 'POST':
+        # Local test mode — bypass payment
+        if app.debug and request.form.get('test_mode'):
+            if existing:
+                existing.paid = True
+                existing.payment_ref = 'TEST-MODE'
+            else:
+                enrollment = Enrollment(
+                    user_id=current_user.id,
+                    course_id=course_id,
+                    paid=True,
+                    payment_ref='TEST-MODE'
+                )
+                db.session.add(enrollment)
+            db.session.commit()
+            flash('Test mode: enrolled successfully!', 'success')
+            return redirect(url_for('learn', course_id=course_id))
         try:
             from pesapal import submit_order, register_ipn
 
@@ -395,6 +411,71 @@ def download_certificate(course_id):
     c.setFont('Helvetica', 9)
     c.drawCentredString(page_w / 2, page_h - 355, f'Certificate No: {cert_number}')
 
+    # ── Director's Stamp ─────────────────────────────────────────────────────
+    stamp_x = page_w * 0.78
+    stamp_y = 90
+    stamp_r = 52
+
+    # Outer circle
+    c.setStrokeColor(colors.HexColor('#1a3c6e'))
+    c.setLineWidth(3)
+    c.circle(stamp_x, stamp_y, stamp_r, fill=0, stroke=1)
+
+    # Inner circle
+    c.setLineWidth(1.5)
+    c.circle(stamp_x, stamp_y, stamp_r - 7, fill=0, stroke=1)
+
+    # Fill with light blue tint
+    c.setFillColor(colors.HexColor('#e8f0fe'))
+    c.circle(stamp_x, stamp_y, stamp_r - 8, fill=1, stroke=0)
+
+    # Top curved text — "LEARNTECH KENYA"
+    c.setFillColor(colors.HexColor('#1a3c6e'))
+    c.setFont('Helvetica-Bold', 7)
+    top_text = 'LEARNTECH KENYA'
+    angle_start = 155
+    angle_end = 25
+    angle_step = (angle_end - angle_start) / (len(top_text) - 1)
+    for i, ch in enumerate(top_text):
+        angle = math.radians(angle_start + i * angle_step)
+        cx = stamp_x + (stamp_r - 4) * math.cos(angle)
+        cy = stamp_y + (stamp_r - 4) * math.sin(angle)
+        c.saveState()
+        c.translate(cx, cy)
+        c.rotate(math.degrees(angle) - 90)
+        c.drawCentredString(0, 0, ch)
+        c.restoreState()
+
+    # Bottom curved text — "OFFICIAL STAMP"
+    c.setFont('Helvetica-Bold', 7)
+    bot_text = 'OFFICIAL STAMP'
+    angle_start2 = -155
+    angle_end2 = -25
+    angle_step2 = (angle_end2 - angle_start2) / (len(bot_text) - 1)
+    for i, ch in enumerate(bot_text):
+        angle = math.radians(angle_start2 + i * angle_step2)
+        cx = stamp_x + (stamp_r - 4) * math.cos(angle)
+        cy = stamp_y + (stamp_r - 4) * math.sin(angle)
+        c.saveState()
+        c.translate(cx, cy)
+        c.rotate(math.degrees(angle) + 90)
+        c.drawCentredString(0, 0, ch)
+        c.restoreState()
+
+    # Center text
+    c.setFillColor(colors.HexColor('#1a3c6e'))
+    c.setFont('Helvetica-Bold', 8)
+    c.drawCentredString(stamp_x, stamp_y + 10, 'DIRECTOR')
+    c.setFont('Helvetica', 7)
+    c.drawCentredString(stamp_x, stamp_y, 'GIDEON MARVIN')
+    c.setFont('Helvetica', 6)
+    c.drawCentredString(stamp_x, stamp_y - 10, 'CERTIFIED')
+
+    # Star decorations
+    c.setFont('ZapfDingbats', 7)
+    c.drawCentredString(stamp_x - 18, stamp_y - 22, '\x4a')
+    c.drawCentredString(stamp_x + 18, stamp_y - 22, '\x4a')
+
     # ── Signature ────────────────────────────────────────────────────────────
     sig_y = 80
     sig_img = os.path.join(os.path.dirname(__file__), 'static', 'signature.png')
@@ -407,11 +488,11 @@ def download_certificate(course_id):
     c.setLineWidth(1)
     c.line(page_w * 0.35, sig_y + 16, page_w * 0.65, sig_y + 16)
     c.setFillColor(colors.HexColor('#1e293b'))
-    c.setFont('Helvetica-Bold', 10)
+    c.setFont('Helvetica-Bold', 20)
     c.drawCentredString(page_w * 0.5, sig_y + 4, 'Gideon Marvin')
-    c.setFont('Helvetica', 9)
+    c.setFont('Helvetica', 14)
     c.setFillColor(colors.HexColor('#64748b'))
-    c.drawCentredString(page_w * 0.5, sig_y - 8, 'Director, LearnTech Kenya')
+    c.drawCentredString(page_w * 0.5, sig_y - 14, 'Director, LearnTech Kenya')
 
     # ── Bottom seal text ─────────────────────────────────────────────────────
     c.setFillColor(colors.HexColor('#94a3b8'))

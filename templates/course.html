@@ -32,9 +32,35 @@
             <h2>{{ current_lesson.title }}</h2>
             <span class="lesson-badge">Lesson {{ current_lesson.order }} of {{ lessons|length }}</span>
         </div>
+        {% if current_lesson.content %}
         <div class="lesson-body">
             {{ current_lesson.content | replace('\n', '<br>') | safe }}
         </div>
+        {% endif %}
+
+        {% set pdf_map = {
+            'Cybersecurity': {'1': 'cyber_security.pdf'},
+            'Graphic Design': {'1': 'graphic_design.pdf'},
+            'Web Development': {'1': 'web_development.pdf'},
+            'Computer Basic Skills': {
+                '1': 'computer_basics.pdf',
+                '2': 'word.pdf',
+                '3': 'excel.pdf',
+                '4': 'powerpoint.pdf',
+                '5': 'publisher.pdf'
+            }
+        } %}
+        {% set course_pdfs = pdf_map.get(course.title, {}) %}
+        {% set pdf_file = course_pdfs.get(current_lesson.order | string) %}
+        {% if pdf_file %}
+        <div class="pdf-viewer-wrap">
+            <div class="pdf-header">
+                <span>📄 {{ current_lesson.title }} — Course Material</span>
+                <a href="{{ url_for('static', filename='pdfs/' + pdf_file) }}" download class="btn btn-outline" style="font-size:.85rem;padding:.4rem .9rem">⬇ Download PDF</a>
+            </div>
+            <iframe src="{{ url_for('static', filename='pdfs/' + pdf_file) }}" class="pdf-iframe" title="{{ current_lesson.title }}"></iframe>
+        </div>
+        {% endif %}
         {% if current_lesson.id not in completed_ids %}
         <button class="btn btn-primary" id="complete-btn" data-lesson="{{ current_lesson.id }}" data-course="{{ course.id }}">
             ✅ Mark as Complete
