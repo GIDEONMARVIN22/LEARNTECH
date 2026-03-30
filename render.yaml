@@ -13,6 +13,8 @@ services:
       - key: PESAPAL_CONSUMER_SECRET
         sync: false
       - key: PESAPAL_BASE_URL
-        value: https://cybqa.pesapal.com/pesapalv3
+        value: https://pay.pesapal.com/v3
       - key: PESAPAL_CALLBACK_URL
         value: https://learntech-lvem.onrender.com/pesapal/callback
+      - key: DATABASE_URL
+        sync: false

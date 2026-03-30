@@ -81,10 +81,11 @@ def seed_data():
         db.session.add(admin)
     else:
         admin = User.query.filter_by(is_admin=True).first()
-        admin.name = 'Gideon Marvin'
-        admin.email = 'admin@learntech.co.ke'
-        admin.password = generate_password_hash('admin123')
-        db.session.add(admin)
+        if admin.email != 'admin@learntech.co.ke':
+            admin.name = 'Gideon Marvin'
+            admin.email = 'admin@learntech.co.ke'
+            admin.password = generate_password_hash('admin123')
+            db.session.add(admin)
     db.session.commit()
 
 # ─── Auth Routes ────────────────────────────────────────────────────────────

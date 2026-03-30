@@ -63,11 +63,11 @@
         {% endif %}
 
         {% set video_map = {
-            'Cybersecurity': {'1': ['cybersecurity.mp4']},
-            'Graphic Design': {'1': ['graphic_design.mp4']},
-            'Web Development': {'1': ['web_development.mp4']},
+            'Cybersecurity': {'1': ['https://www.youtube.com/embed/SVjuj_MLVTg']},
+            'Graphic Design': {'1': ['https://www.youtube.com/embed/g33-_UVAsuI']},
+            'Web Development': {'1': ['https://www.youtube.com/embed/6tO6DoTGhSk']},
             'Computer Basic Skills': {
-                '1': ['computer_basics_1.mp4', 'computer_basics_2.mp4'],
+                '1': ['https://www.youtube.com/embed/9XqxOylooJ4', 'https://www.youtube.com/embed/ebXgp9vdSAA'],
                 '2': [],
                 '3': [],
                 '4': [],
@@ -76,16 +76,21 @@
         } %}
         {% set course_videos = video_map.get(course.title, {}) %}
         {% set lesson_videos = course_videos.get(current_lesson.order | string, []) %}
-        {% for video in lesson_videos %}
+        {% for video_url in lesson_videos %}
+        {% if video_url %}
         <div class="video-wrap">
             <div class="video-header">
                 <span>🎬 Video Tutorial {% if lesson_videos|length > 1 %}{{ loop.index }}{% endif %} — {{ current_lesson.title }}</span>
             </div>
-            <video controls class="course-video" preload="metadata">
-                <source src="{{ url_for('static', filename='videos/' + video) }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <iframe class="course-video"
+                src="{{ video_url }}"
+                title="{{ current_lesson.title }} video tutorial"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
         </div>
+        {% endif %}
         {% endfor %}
         {% if current_lesson.id not in completed_ids %}
         <button class="btn btn-primary" id="complete-btn" data-lesson="{{ current_lesson.id }}" data-course="{{ course.id }}">
