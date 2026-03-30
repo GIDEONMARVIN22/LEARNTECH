@@ -614,10 +614,26 @@ def admin_dashboard():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        # Add missing columns if they don't exist (safe migration)
+        try:
+            from sqlalchemy import text
+            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_downloaded BOOLEAN DEFAULT FALSE'))
+            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_redownload_paid BOOLEAN DEFAULT FALSE'))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         seed_data()
     app.run(debug=True)
 else:
     # For Render / gunicorn
     with app.app_context():
         db.create_all()
+        # Add missing columns if they don't exist (safe migration)
+        try:
+            from sqlalchemy import text
+            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_downloaded BOOLEAN DEFAULT FALSE'))
+            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_redownload_paid BOOLEAN DEFAULT FALSE'))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         seed_data()
