@@ -7,8 +7,5 @@ venv/
 .venv/
 instance/
 
-# Large media files — upload these manually to server
+# Videos are on YouTube, no need to push
 static/videos/
-static/pdfs/
-static/signature.png
-static/logo.png
