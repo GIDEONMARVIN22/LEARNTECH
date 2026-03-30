@@ -38,10 +38,21 @@ class Enrollment(db.Model):
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed = db.Column(db.Boolean, default=False)
     completed_at = db.Column(db.DateTime)
-    progress = db.Column(db.Integer, default=0)  # percentage
+    progress = db.Column(db.Integer, default=0)
+    cert_downloaded = db.Column(db.Boolean, default=False)       # first download done
+    cert_redownload_paid = db.Column(db.Boolean, default=False)  # Ksh 100 redownload paid
 
 class LessonProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
     completed = db.Column(db.Boolean, default=False)
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='comments')
+    lesson = db.relationship('Lesson', backref='comments')

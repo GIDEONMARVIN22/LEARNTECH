@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, jso
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-from models import db, User, Course, Lesson, Enrollment, LessonProgress
+from models import db, User, Course, Lesson, Enrollment, LessonProgress, Comment
 import io, os, math
 
 app = Flask(__name__)
@@ -32,10 +32,6 @@ def seed_data():
             'description': 'Learn ethical hacking, network security, threat analysis, and how to protect systems from cyber attacks.',
             'lessons': [
                 ('Introduction to Cybersecurity', ''),
-                ('Network Security Basics', ''),
-                ('Ethical Hacking & Penetration Testing', ''),
-                ('Cryptography Fundamentals', ''),
-                ('Incident Response & Recovery', ''),
             ]
         },
         {
@@ -44,10 +40,6 @@ def seed_data():
             'description': 'Master visual communication, typography, color theory, and design tools to create stunning graphics.',
             'lessons': [
                 ('Design Principles & Elements', ''),
-                ('Color Theory', ''),
-                ('Typography', ''),
-                ('Logo & Brand Identity Design', ''),
-                ('Digital Tools: Canva & Figma', ''),
             ]
         },
         {
@@ -56,10 +48,6 @@ def seed_data():
             'description': 'Build modern websites and web apps using HTML, CSS, JavaScript, and backend technologies.',
             'lessons': [
                 ('HTML Fundamentals', ''),
-                ('CSS Styling & Layouts', ''),
-                ('JavaScript Essentials', ''),
-                ('Backend with Python & Flask', ''),
-                ('Deploying Your Website', ''),
             ]
         },
         {
@@ -258,8 +246,39 @@ def learn(course_id):
     completed_ids = [lp.lesson_id for lp in LessonProgress.query.filter_by(user_id=current_user.id, completed=True).all()]
     lesson_id = request.args.get('lesson', lessons[0].id if lessons else None, type=int)
     current_lesson = Lesson.query.get(lesson_id) if lesson_id else (lessons[0] if lessons else None)
+    comments = Comment.query.filter_by(lesson_id=current_lesson.id).order_by(Comment.created_at.desc()).all() if current_lesson else []
     return render_template('course.html', course=course, lessons=lessons, current_lesson=current_lesson,
-                           completed_ids=completed_ids, enrollment=enrollment)
+                           completed_ids=completed_ids, enrollment=enrollment, comments=comments)
+
+
+@app.route('/comment/<int:lesson_id>', methods=['POST'])
+@login_required
+def add_comment(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    enrollment = Enrollment.query.filter_by(user_id=current_user.id, course_id=lesson.course_id, paid=True).first()
+    if not enrollment:
+        flash('You must be enrolled to comment.', 'error')
+        return redirect(url_for('dashboard'))
+    content = request.form.get('content', '').strip()
+    if content:
+        comment = Comment(user_id=current_user.id, lesson_id=lesson_id, content=content)
+        db.session.add(comment)
+        db.session.commit()
+    return redirect(url_for('learn', course_id=lesson.course_id, lesson=lesson_id) + '#comments')
+
+
+@app.route('/comment/<int:comment_id>/delete', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.user_id == current_user.id or current_user.is_admin:
+        course_id = comment.lesson.course_id
+        lesson_id = comment.lesson_id
+        db.session.delete(comment)
+        db.session.commit()
+        return redirect(url_for('learn', course_id=course_id, lesson=lesson_id) + '#comments')
+    flash('Not allowed.', 'error')
+    return redirect(url_for('dashboard'))
 
 @app.route('/complete-lesson/<int:lesson_id>', methods=['POST'])
 @login_required
@@ -296,7 +315,11 @@ def certificate(course_id):
         flash('Complete the course first to get your certificate.', 'error')
         return redirect(url_for('learn', course_id=course_id))
     course = Course.query.get_or_404(course_id)
-    return render_template('certificate.html', user=current_user, course=course, enrollment=enrollment)
+    # Check if redownload is needed
+    needs_redownload_payment = enrollment.cert_downloaded and not enrollment.cert_redownload_paid
+    return render_template('certificate.html', user=current_user, course=course,
+                           enrollment=enrollment, needs_redownload_payment=needs_redownload_payment)
+
 
 @app.route('/certificate/<int:course_id>/download')
 @login_required
@@ -304,7 +327,6 @@ def download_certificate(course_id):
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib import colors
     from reportlab.pdfgen import canvas
-    from reportlab.lib.units import inch, mm
 
     enrollment = Enrollment.query.filter_by(
         user_id=current_user.id, course_id=course_id, paid=True, completed=True
@@ -312,6 +334,11 @@ def download_certificate(course_id):
     if not enrollment:
         flash('Complete the course first.', 'error')
         return redirect(url_for('dashboard'))
+
+    # Block redownload unless Ksh 100 fine is paid
+    if enrollment.cert_downloaded and not enrollment.cert_redownload_paid:
+        flash('You have already downloaded this certificate. Pay Ksh 100 to download again.', 'error')
+        return redirect(url_for('certificate', course_id=course_id))
 
     course = Course.query.get_or_404(course_id)
 
@@ -503,8 +530,70 @@ def download_certificate(course_id):
     c.save()
     buffer.seek(0)
 
+    # Mark as downloaded, reset redownload flag
+    enrollment.cert_downloaded = True
+    enrollment.cert_redownload_paid = False
+    db.session.commit()
+
     filename = f'LearnTech_Certificate_{current_user.name.replace(" ", "_")}_{course.title.replace(" ", "_")}.pdf'
     return send_file(buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
+
+@app.route('/certificate/<int:course_id>/redownload', methods=['GET', 'POST'])
+@login_required
+def redownload_certificate(course_id):
+    enrollment = Enrollment.query.filter_by(user_id=current_user.id, course_id=course_id, paid=True, completed=True).first()
+    if not enrollment:
+        return redirect(url_for('dashboard'))
+    course = Course.query.get_or_404(course_id)
+    if request.method == 'POST':
+        try:
+            from pesapal import submit_order, register_ipn
+            ipn_id = os.environ.get('PESAPAL_IPN_ID', '')
+            if not ipn_id:
+                ipn_id = register_ipn()
+                os.environ['PESAPAL_IPN_ID'] = ipn_id
+            reference = f'RECERT-{course_id}-{current_user.id}-{int(datetime.utcnow().timestamp())}'
+            name_parts = current_user.name.strip().split(' ', 1)
+            redirect_url, tracking_id = submit_order(
+                amount=100,
+                description=f'LearnTech: Certificate Redownload — {course.title}',
+                reference=reference,
+                email=current_user.email,
+                phone=request.form.get('phone', ''),
+                first_name=name_parts[0],
+                last_name=name_parts[1] if len(name_parts) > 1 else 'N/A',
+                ipn_id=ipn_id
+            )
+            enrollment.payment_ref = tracking_id
+            db.session.commit()
+            return redirect(redirect_url)
+        except Exception as e:
+            flash(f'Payment failed: {str(e)}', 'error')
+    return render_template('redownload.html', course=course, enrollment=enrollment)
+
+
+@app.route('/pesapal/redownload-callback')
+def pesapal_redownload_callback():
+    tracking_id = request.args.get('OrderTrackingId')
+    if not tracking_id:
+        flash('Payment verification failed.', 'error')
+        return redirect(url_for('dashboard'))
+    try:
+        from pesapal import get_transaction_status
+        status = get_transaction_status(tracking_id)
+        payment_status = status.get('payment_status_description', '').lower()
+        enrollment = Enrollment.query.filter_by(payment_ref=tracking_id).first()
+        if enrollment and payment_status == 'completed':
+            enrollment.cert_redownload_paid = True
+            db.session.commit()
+            flash('Payment confirmed! You can now download your certificate.', 'success')
+            return redirect(url_for('certificate', course_id=enrollment.course_id))
+        else:
+            flash('Payment not completed. Try again.', 'error')
+            return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f'Could not verify payment: {str(e)}', 'error')
+        return redirect(url_for('dashboard'))
 
 # ─── Admin Routes ────────────────────────────────────────────────────────────
 
@@ -516,7 +605,9 @@ def admin_dashboard():
     users = User.query.filter_by(is_admin=False).order_by(User.created_at.desc()).all()
     enrollments = Enrollment.query.filter_by(paid=True).all()
     courses = Course.query.all()
-    total_revenue = len(enrollments) * 500
+    course_revenue = len(enrollments) * 500
+    redownload_revenue = Enrollment.query.filter_by(cert_redownload_paid=True).count() * 100
+    total_revenue = course_revenue + redownload_revenue
     return render_template('admin.html', users=users, enrollments=enrollments, courses=courses, total_revenue=total_revenue)
 
 if __name__ == '__main__':

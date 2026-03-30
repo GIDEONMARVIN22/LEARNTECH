@@ -7,7 +7,7 @@
     <div class="admin-stats">
         <div class="stat-card"><h3>{{ users|length }}</h3><p>Total Students</p></div>
         <div class="stat-card"><h3>{{ enrollments|length }}</h3><p>Paid Enrollments</p></div>
-        <div class="stat-card"><h3>Ksh {{ "{:,}".format(total_revenue) }}</h3><p>Total Revenue</p></div>
+        <div class="stat-card"><h3>Ksh {{ "{:,}".format(total_revenue) }}</h3><p>Total Revenue (courses + redownloads)</p></div>
         <div class="stat-card"><h3>{{ enrollments|selectattr('completed')|list|length }}</h3><p>Certificates Issued</p></div>
     </div>
 

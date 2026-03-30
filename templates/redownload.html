@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Redownload Certificate — LearnTech{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card enroll-card">
+        <div class="course-icon-lg">📜</div>
+        <h2>Redownload Certificate</h2>
+        <p>You are requesting a redownload of your <strong>{{ course.title }}</strong> certificate.</p>
+
+        <div class="payment-info">
+            <h4>💳 Redownload Fee — Ksh 100</h4>
+            <p>A one-time fee of <strong>Ksh 100</strong> is charged for each additional download of your certificate.</p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>M-Pesa Phone Number</label>
+                <input type="tel" name="phone" required placeholder="e.g. 0712345678" pattern="[0-9]{10}">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Pay Ksh 100 & Redownload →</button>
+        </form>
+        <p class="auth-switch"><a href="{{ url_for('certificate', course_id=course.id) }}">← Back to Certificate</a></p>
+    </div>
+</div>
+{% endblock %}

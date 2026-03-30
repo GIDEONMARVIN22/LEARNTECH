@@ -61,6 +61,32 @@
             <iframe src="{{ url_for('static', filename='pdfs/' + pdf_file) }}" class="pdf-iframe" title="{{ current_lesson.title }}"></iframe>
         </div>
         {% endif %}
+
+        {% set video_map = {
+            'Cybersecurity': {'1': ['cybersecurity.mp4']},
+            'Graphic Design': {'1': ['graphic_design.mp4']},
+            'Web Development': {'1': ['web_development.mp4']},
+            'Computer Basic Skills': {
+                '1': ['computer_basics_1.mp4', 'computer_basics_2.mp4'],
+                '2': [],
+                '3': [],
+                '4': [],
+                '5': []
+            }
+        } %}
+        {% set course_videos = video_map.get(course.title, {}) %}
+        {% set lesson_videos = course_videos.get(current_lesson.order | string, []) %}
+        {% for video in lesson_videos %}
+        <div class="video-wrap">
+            <div class="video-header">
+                <span>🎬 Video Tutorial {% if lesson_videos|length > 1 %}{{ loop.index }}{% endif %} — {{ current_lesson.title }}</span>
+            </div>
+            <video controls class="course-video" preload="metadata">
+                <source src="{{ url_for('static', filename='videos/' + video) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        {% endfor %}
         {% if current_lesson.id not in completed_ids %}
         <button class="btn btn-primary" id="complete-btn" data-lesson="{{ current_lesson.id }}" data-course="{{ course.id }}">
             ✅ Mark as Complete
@@ -81,6 +107,37 @@
             {% endif %}
             {% if ns.next %}
             <a href="{{ url_for('learn', course_id=course.id, lesson=ns.next.id) }}" class="btn btn-primary">Next →</a>
+            {% endif %}
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section" id="comments">
+            <h3 class="comments-title">💬 Discussion ({{ comments|length }})</h3>
+
+            <form method="POST" action="{{ url_for('add_comment', lesson_id=current_lesson.id) }}" class="comment-form">
+                <textarea name="content" placeholder="Ask a question or share your thoughts..." required rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+
+            {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-card">
+                    <div class="comment-meta">
+                        <span class="comment-author">👤 {{ comment.user.name }}</span>
+                        <span class="comment-date">{{ comment.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+                    </div>
+                    <p class="comment-content">{{ comment.content }}</p>
+                    {% if comment.user_id == current_user.id or current_user.is_admin %}
+                    <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}" style="display:inline">
+                        <button type="submit" class="comment-delete" onclick="return confirm('Delete this comment?')">🗑 Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-comments">No comments yet. Be the first to ask a question!</p>
             {% endif %}
         </div>
         {% endif %}

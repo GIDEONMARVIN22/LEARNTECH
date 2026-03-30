@@ -6,3 +6,9 @@ __pycache__/
 venv/
 .venv/
 instance/
+
+# Large media files — upload these manually to server
+static/videos/
+static/pdfs/
+static/signature.png
+static/logo.png

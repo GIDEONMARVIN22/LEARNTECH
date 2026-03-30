@@ -18,9 +18,65 @@
     </div>
 </section>
 
+<!-- CEO's Message -->
+<section class="ceo-section">
+    <div class="ceo-card">
+        <div class="ceo-quote-mark">"</div>
+        <div class="ceo-message">
+            <h2>A Message from Our Director</h2>
+            <p class="ceo-text">
+                Welcome to <strong>LearnTech Kenya</strong> — where we believe that technology skills are the most powerful tool you can own in today's world.
+            </p>
+            <p class="ceo-text">
+                We built this platform with one mission: to make <strong>practical, hands-on tech education</strong> accessible to every Kenyan, regardless of your background or experience. Every course here is designed not just to teach you theory, but to give you <strong>real skills you can use immediately</strong> — in your job, your business, or your daily life.
+            </p>
+            <p class="ceo-text">
+                Our courses are guided by <strong>high-tech skilled developers and industry professionals</strong> who bring you video tutorials, step-by-step lessons, and real-world projects. You don't just read — you <strong>do</strong>. And when you finish, you walk away with a certificate that proves it.
+            </p>
+            <p class="ceo-text">
+                Whether you want to protect systems from cyber threats, design stunning graphics, build websites, or simply master your computer — <strong>this is your place to grow.</strong> The future belongs to those who are skilled. Let's build yours together.
+            </p>
+            <div class="ceo-signature">
+                <img src="{{ url_for('static', filename='signature.png') }}" alt="Director Signature" class="ceo-sig-img" onerror="this.style.display='none'">
+                <div>
+                    <p class="ceo-name">Gideon Marvin</p>
+                    <p class="ceo-title">Director &amp; CEO, LearnTech Kenya</p>
+                    <a href="mailto:engineermarvin69@gmail.com" class="ceo-email">✉ engineermarvin69@gmail.com</a>
+                </div>
+            </div>
+        </div>
+        <div class="ceo-highlights">
+            <div class="ceo-highlight">
+                <span>🎯</span>
+                <p>Practical hands-on learning</p>
+            </div>
+            <div class="ceo-highlight">
+                <span>🎬</span>
+                <p>Video tutorials included</p>
+            </div>
+            <div class="ceo-highlight">
+                <span>👨‍💻</span>
+                <p>Expert instructors</p>
+            </div>
+            <div class="ceo-highlight">
+                <span>📜</span>
+                <p>Certified on completion</p>
+            </div>
+            <div class="ceo-highlight">
+                <span>⏰</span>
+                <p>Learn at your own pace</p>
+            </div>
+            <div class="ceo-highlight">
+                <span>💰</span>
+                <p>Only Ksh 500 per course</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="courses-section" id="courses">
     <h2>Our Courses</h2>
-    <p class="section-sub">Each course includes lessons, quizzes, and a downloadable certificate upon completion.</p>
+    <p class="section-sub">Each course includes lessons, PDF materials, video tutorials, and a downloadable certificate upon completion.</p>
     <div class="courses-grid">
         {% for course in courses %}
         <div class="course-card">
