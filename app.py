@@ -23,54 +23,56 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def seed_data():
-    if Course.query.count() > 0:
-        return
-    courses = [
-        {
-            'title': 'Cybersecurity',
-            'icon': '🔐',
-            'description': 'Learn ethical hacking, network security, threat analysis, and how to protect systems from cyber attacks.',
-            'lessons': [
-                ('Introduction to Cybersecurity', ''),
-            ]
-        },
-        {
-            'title': 'Graphic Design',
-            'icon': '🎨',
-            'description': 'Master visual communication, typography, color theory, and design tools to create stunning graphics.',
-            'lessons': [
-                ('Design Principles & Elements', ''),
-            ]
-        },
-        {
-            'title': 'Web Development',
-            'icon': '💻',
-            'description': 'Build modern websites and web apps using HTML, CSS, JavaScript, and backend technologies.',
-            'lessons': [
-                ('HTML Fundamentals', ''),
-            ]
-        },
-        {
-            'title': 'Computer Basic Skills',
-            'icon': '🖥️',
-            'description': 'Build a solid foundation in computer usage, Microsoft Office, internet safety, and digital literacy.',
-            'lessons': [
-                ('Computer Basics', ''),
-                ('Microsoft Word', ''),
-                ('Microsoft Excel', ''),
-                ('Microsoft PowerPoint', ''),
-                ('Microsoft Publisher', ''),
-            ]
-        },
-    ]
-    for c in courses:
-        course = Course(title=c['title'], icon=c['icon'], description=c['description'])
-        db.session.add(course)
-        db.session.flush()
-        for i, (title, content) in enumerate(c['lessons']):
-            lesson = Lesson(course_id=course.id, title=title, content=content, order=i+1)
-            db.session.add(lesson)
-    # Create admin user
+    # Only seed courses if none exist — never touch existing data
+    if Course.query.count() == 0:
+        courses = [
+            {
+                'title': 'Cybersecurity',
+                'icon': '🔐',
+                'description': 'Learn ethical hacking, network security, threat analysis, and how to protect systems from cyber attacks.',
+                'lessons': [
+                    ('Introduction to Cybersecurity', ''),
+                ]
+            },
+            {
+                'title': 'Graphic Design',
+                'icon': '🎨',
+                'description': 'Master visual communication, typography, color theory, and design tools to create stunning graphics.',
+                'lessons': [
+                    ('Design Principles & Elements', ''),
+                ]
+            },
+            {
+                'title': 'Web Development',
+                'icon': '💻',
+                'description': 'Build modern websites and web apps using HTML, CSS, JavaScript, and backend technologies.',
+                'lessons': [
+                    ('HTML Fundamentals', ''),
+                ]
+            },
+            {
+                'title': 'Computer Basic Skills',
+                'icon': '🖥️',
+                'description': 'Build a solid foundation in computer usage, Microsoft Office, internet safety, and digital literacy.',
+                'lessons': [
+                    ('Computer Basics', ''),
+                    ('Microsoft Word', ''),
+                    ('Microsoft Excel', ''),
+                    ('Microsoft PowerPoint', ''),
+                    ('Microsoft Publisher', ''),
+                ]
+            },
+        ]
+        for c in courses:
+            course = Course(title=c['title'], icon=c['icon'], description=c['description'])
+            db.session.add(course)
+            db.session.flush()
+            for i, (title, content) in enumerate(c['lessons']):
+                lesson = Lesson(course_id=course.id, title=title, content=content, order=i+1)
+                db.session.add(lesson)
+        db.session.commit()
+
+    # Only create admin if no admin exists — never overwrite existing admin
     if not User.query.filter_by(is_admin=True).first():
         admin = User(
             name='Gideon Marvin',
@@ -79,14 +81,7 @@ def seed_data():
             is_admin=True
         )
         db.session.add(admin)
-    else:
-        admin = User.query.filter_by(is_admin=True).first()
-        if admin.email != 'admin@learntech.co.ke':
-            admin.name = 'Gideon Marvin'
-            admin.email = 'admin@learntech.co.ke'
-            admin.password = generate_password_hash('admin123')
-            db.session.add(admin)
-    db.session.commit()
+        db.session.commit()
 
 # ─── Auth Routes ────────────────────────────────────────────────────────────
 
@@ -611,29 +606,24 @@ def admin_dashboard():
     total_revenue = course_revenue + redownload_revenue
     return render_template('admin.html', users=users, enrollments=enrollments, courses=courses, total_revenue=total_revenue)
 
+def init_db():
+    """Safe DB initialization — never drops or overwrites existing data."""
+    db.create_all()
+    # Migrate legacy DBs that may be missing these columns (IF NOT EXISTS is safe)
+    try:
+        from sqlalchemy import text
+        db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_downloaded BOOLEAN DEFAULT FALSE'))
+        db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_redownload_paid BOOLEAN DEFAULT FALSE'))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    seed_data()
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-        # Add missing columns if they don't exist (safe migration)
-        try:
-            from sqlalchemy import text
-            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_downloaded BOOLEAN DEFAULT FALSE'))
-            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_redownload_paid BOOLEAN DEFAULT FALSE'))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        seed_data()
+        init_db()
     app.run(debug=True)
 else:
     # For Render / gunicorn
     with app.app_context():
-        db.create_all()
-        # Add missing columns if they don't exist (safe migration)
-        try:
-            from sqlalchemy import text
-            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_downloaded BOOLEAN DEFAULT FALSE'))
-            db.session.execute(text('ALTER TABLE enrollment ADD COLUMN IF NOT EXISTS cert_redownload_paid BOOLEAN DEFAULT FALSE'))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        seed_data()
+        init_db()

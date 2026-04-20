@@ -1,10 +1,16 @@
+databases:
+  - name: learntech-db
+    databaseName: learntech
+    user: learntech
+    plan: free
+
 services:
   - type: web
     name: learntech
     runtime: python
     pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --bind 0.0:$PORT
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -17,4 +23,6 @@ services:
       - key: PESAPAL_CALLBACK_URL
         value: https://learntech-lvem.onrender.com/pesapal/callback
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: learntech-db
+          property: connectionString
